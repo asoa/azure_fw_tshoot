@@ -32,16 +32,30 @@ module "auto" {
   depends_on      = [module.vm]
 }
 
+module "lb" {
+  source               = "./modules/external_network_tier_lb"
+  public_ips           = module.pip.ip_ids
+  subnet_ids           = module.vnet.subnet_ids
+  bep_nic_ids          = module.vm.nic_ids
+  internal_lb          = var.internal_lb
+  load_balancers       = var.load_balancers
+  lb_probes            = var.lb_probes
+  lb_rules             = var.lb_rules
+  lb_backend_pools     = var.lb_backend_pools
+  nic_bep_associations = var.nic_bep_associations
+  depends_on           = [module.vnet, module.pip, module.vm]
+}
+
 module "fw" {
   source                                 = "./modules/external_network_tier_fw"
   subnet_ids                             = module.vnet.subnet_ids
   ip_ids                                 = module.pip.ip_ids
   ip_addresses                           = module.pip.ip_addresses
-  backend_ip_addresses                   = module.vm.backend_ip_addresses
+  backend_ip_addresses                   = values(module.lb.private_ip_address) # private ip of load balancer
   firewall_policies                      = var.firewall_policies
   firewall_policy_rule_collection_groups = var.firewall_policy_rule_collection_groups
   firewalls                              = var.firewalls
   route_tables                           = var.route_tables
   subnet_route_table_associations        = var.subnet_route_table_associations
-  depends_on                             = [module.vnet, module.pip, module.vm]
+  depends_on                             = [module.vnet, module.pip, module.lb]
 }

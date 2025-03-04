@@ -13,6 +13,12 @@ variable "bep_nic_ids" {
   type        = map(any)
 }
 
+variable "internal_lb" {
+  description = "deployed behind nva (e.g. azure firewall)"
+  type        = bool
+  default     = false
+}
+
 variable "load_balancers" {
   type = map(object({
     name                = string
@@ -22,9 +28,10 @@ variable "load_balancers" {
     sku_tier            = optional(string)
     frontend_ip_configuration = object({
       name                          = string
-      public_ip_address_id          = string # dynamic from main.tf
+      public_ip_address_id          = optional(string) # dynamic from main.tf
       private_ip_address_allocation = string
       subnet_id                     = optional(string) # dynamic from main.tf
+      vnet_name                     = optional(string)
     })
   }))
   default = {}

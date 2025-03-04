@@ -8,8 +8,8 @@ resource "azurerm_lb" "lb" {
   frontend_ip_configuration {
     name                          = each.value.frontend_ip_configuration.name
     private_ip_address_allocation = each.value.frontend_ip_configuration.private_ip_address_allocation
-    public_ip_address_id          = var.public_ips[each.key]
-    # subnet_id                     = var.subnet_ids[each.key]
+    public_ip_address_id          = var.internal_lb ? null : var.public_ips[each.key]
+    subnet_id                     = var.subnet_ids[each.value.frontend_ip_configuration.vnet_name][each.value.frontend_ip_configuration.subnet_id]
   }
 }
 
