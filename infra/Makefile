@@ -1,9 +1,6 @@
 
 .PHONY: init validate plan apply destroy
 
-# include ../.env
-# export
-
 init:
 	@echo "Initializing Terraform..."
 	terraform init

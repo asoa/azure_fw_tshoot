@@ -1,4 +1,4 @@
-subscription_id = "d48e2004-b787-4aed-800d-47e74f92afbb"
+subscription_id = "<subscription_id>"
 
 resource_groups = {
   rg1 = {
@@ -103,7 +103,7 @@ virtual_machines = {
     location              = "eastus2"
     size                  = "Standard_DS1_v2"
     admin_username        = "adminuser"
-    admin_password        = "Password1234!"
+    admin_password        = "<admin_password>"
     network_interface_ids = ["vm1nic"]
     os_disk = {
       caching              = "ReadWrite"
@@ -125,7 +125,7 @@ virtual_machines = {
     location              = "eastus2"
     size                  = "Standard_DS1_v2"
     admin_username        = "adminuser"
-    admin_password        = "Password1234!"
+    admin_password        = "<admin_password>"
     network_interface_ids = ["vm2nic"]
     os_disk = {
       caching              = "ReadWrite"
@@ -243,57 +243,14 @@ firewall_policies = {
 }
 
 firewall_policy_rule_collection_groups = {
-  fw-rule-collection = {
-    name            = "fw-rule-collection"
+  dnat-rule-collection = {
+    name            = "nat-rule-collection"
     firewall_policy = "fw-policy"
-    priority        = 300
-    application_rule_collections = [
-      {
-        name     = "Allow-HTTP"
-        action   = "Allow"
-        priority = 301
-        rules = [
-          {
-            name = "Allow-HTTP"
-            protocols = {
-              type = "Http"
-              port = "80"
-            }
-            source_addresses  = ["*"]
-            destination_fqdns = ["*.microsoft.com"]
-          },
-          {
-            name = "allow-msft-https"
-            protocols = {
-              type = "Https"
-              port = 443
-            }
-            source_addresses  = ["*"]
-            destination_fqdns = ["*.microsoft.com"]
-          }
-        ]
-      }
-    ]
-    network_rule_collections = [
-      {
-        name     = "vnet-rdp"
-        priority = 200
-        action   = "Allow"
-        rules = [
-          {
-            name                  = "allow-vnet"
-            protocols             = ["TCP"]
-            source_addresses      = ["*"]
-            destination_addresses = ["*"]
-            destination_ports     = ["3389"]
-          }
-        ]
-      }
-    ]
+    priority        = 100
     nat_rule_collections = [
       {
         name     = "dnat-rdp"
-        priority = 100
+        priority = 110
         action   = "Dnat"
         rules = [
           {
@@ -313,6 +270,59 @@ firewall_policy_rule_collection_groups = {
             source_addresses    = ["*"]
             destination_address = "fw" # key value in map from input variable ip_addresses
             destination_ports   = ["80"]
+          }
+        ]
+      }
+    ]
+  },
+  application-rule-collection = {
+    name            = "app-rule-collection"
+    firewall_policy = "fw-policy"
+    priority        = 200
+    application_rule_collections = [
+      {
+        name     = "Allow-HTTP"
+        action   = "Allow"
+        priority = 210
+        rules = [
+          {
+            name = "Allow-HTTP"
+            protocols = {
+              type = "Http"
+              port = "80"
+            }
+            source_addresses  = ["*"]
+            destination_fqdns = ["*.microsoft.com", "*.google.com"]
+          },
+          {
+            name = "allow-msft-https"
+            protocols = {
+              type = "Https"
+              port = 443
+            }
+            source_addresses  = ["*"]
+            destination_fqdns = ["*.microsoft.com", "*.google.com"]
+          }
+        ]
+      }
+    ]
+  },
+  network-rule-collection = {
+    name            = "network-rule-collection"
+    firewall_policy = "fw-policy"
+    priority        = 300
+    network_rule_collections = [
+      {
+        name     = "vnet-rdp"
+        priority = 310
+        action   = "Allow"
+        rules = [
+          {
+            name                  = "allow-vnet"
+            protocols             = ["TCP"]
+            source_addresses      = ["*"]
+            destination_addresses = ["*"]
+            destination_ports     = ["3389"]
           }
         ]
       }
@@ -345,7 +355,7 @@ route_tables = {
     routes = {
       default = {
         name                   = "default"
-        address_prefix         = "10.11.1.0/24"
+        address_prefix         = "0.0.0.0/0"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "fw"
       }

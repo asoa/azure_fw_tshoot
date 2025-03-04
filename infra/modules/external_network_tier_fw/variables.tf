@@ -47,7 +47,7 @@ variable "firewall_policy_rule_collection_groups" {
     name            = string
     firewall_policy = string
     priority        = number
-    application_rule_collections = list(object({
+    application_rule_collections = optional(list(object({
       name     = string
       priority = number
       action   = string
@@ -60,8 +60,8 @@ variable "firewall_policy_rule_collection_groups" {
         source_addresses  = list(string)
         destination_fqdns = list(string)
       }))
-    }))
-    network_rule_collections = list(object({
+    })))
+    network_rule_collections = optional(list(object({
       name     = string
       priority = number
       action   = string
@@ -72,8 +72,8 @@ variable "firewall_policy_rule_collection_groups" {
         destination_addresses = list(string)
         destination_ports     = list(string)
       }))
-    }))
-    nat_rule_collections = list(object({
+    })))
+    nat_rule_collections = optional(list(object({
       name     = string
       priority = number
       action   = string
@@ -86,7 +86,7 @@ variable "firewall_policy_rule_collection_groups" {
         destination_address = string
         destination_ports   = list(string)
       }))
-    }))
+    })))
   }))
 }
 

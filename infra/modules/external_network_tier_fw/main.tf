@@ -16,7 +16,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "fw_rcg" {
   firewall_policy_id = azurerm_firewall_policy.fw_policy[each.value.firewall_policy].id
   priority           = each.value.priority
   dynamic "application_rule_collection" {
-    for_each = each.value.application_rule_collections
+    for_each = strcontains(each.value.name, "app") ? each.value.application_rule_collections : []
     content {
       name     = application_rule_collection.value.name
       priority = application_rule_collection.value.priority
@@ -36,7 +36,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "fw_rcg" {
     }
   }
   dynamic "network_rule_collection" {
-    for_each = each.value.network_rule_collections
+    for_each = strcontains(each.value.name, "network") ? each.value.network_rule_collections : []
     content {
       name     = network_rule_collection.value.name
       priority = network_rule_collection.value.priority
@@ -54,7 +54,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "fw_rcg" {
     }
   }
   dynamic "nat_rule_collection" {
-    for_each = each.value.nat_rule_collections
+    for_each = strcontains(each.value.name, "nat") ? each.value.nat_rule_collections : []
     content {
       name     = nat_rule_collection.value.name
       priority = nat_rule_collection.value.priority
@@ -114,7 +114,7 @@ resource "azurerm_route_table" "rt" {
       name                   = route.value.name
       address_prefix         = route.value.address_prefix
       next_hop_type          = route.value.next_hop_type
-      next_hop_in_ip_address = var.ip_addresses[route.value.next_hop_in_ip_address]
+      next_hop_in_ip_address = azurerm_firewall.fw[route.value.next_hop_in_ip_address].ip_configuration[0].private_ip_address
     }
   }
 }
