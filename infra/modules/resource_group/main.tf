@@ -1,5 +1,11 @@
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "~> 0.3"
+}
+
 resource "azurerm_resource_group" "by_map" {
   for_each = var.resource_groups
-  name     = each.value.name
+  name     = module.naming.resource_group[each.key].name
   location = each.value.location
 }

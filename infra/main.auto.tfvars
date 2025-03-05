@@ -1,8 +1,16 @@
-subscription_id = "<subscription_id>"
+subscription_id = "d48e2004-b787-4aed-800d-47e74f92afbb"
 
 resource_groups = {
-  rg1 = {
-    name     = "rg1"
+  hub = {
+    name     = "<override in main>"
+    location = "eastus2"
+  }
+  vm = {
+    name     = "<override in main>"
+    location = "eastus2"
+  }
+  aks = {
+    name     = "<override in main>"
     location = "eastus2"
   }
 }
@@ -103,7 +111,7 @@ virtual_machines = {
     location              = "eastus2"
     size                  = "Standard_DS1_v2"
     admin_username        = "adminuser"
-    admin_password        = "<admin_password>"
+    admin_password        = "Tgjbh/pe2I72PD/XAzY9"
     network_interface_ids = ["vm1nic"]
     os_disk = {
       caching              = "ReadWrite"
@@ -125,7 +133,7 @@ virtual_machines = {
     location              = "eastus2"
     size                  = "Standard_DS1_v2"
     admin_username        = "adminuser"
-    admin_password        = "<admin_password>"
+    admin_password        = "Tgjbh/pe2I72PD/XAzY9"
     network_interface_ids = ["vm2nic"]
     os_disk = {
       caching              = "ReadWrite"

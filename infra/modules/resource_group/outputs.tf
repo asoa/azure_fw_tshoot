@@ -1,4 +1,4 @@
-# outputs a map of resource group names and their IDs
-output "resource_groups" {
-  value = { for rg in azurerm_resource_group.by_map : rg.name => rg.id }
+# outputs a map of resource group names
+output "resource_group_names" {
+  value = { for k, v in azurerm_resource_group.by_map : k => v.name }
 }
