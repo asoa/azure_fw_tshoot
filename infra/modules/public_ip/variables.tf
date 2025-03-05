@@ -8,3 +8,9 @@ variable "public_ips" {
     sku                 = string
   }))
 }
+
+variable "rg_names" {
+  description = "map of resource group names from resource group module"
+  type        = map(string)
+  default     = {}
+}

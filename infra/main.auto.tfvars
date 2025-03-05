@@ -2,23 +2,23 @@ subscription_id = "d48e2004-b787-4aed-800d-47e74f92afbb"
 
 resource_groups = {
   hub = {
-    name     = "<override in main>"
+    name     = "hub"
     location = "eastus2"
   }
   vm = {
-    name     = "<override in main>"
+    name     = "vm"
     location = "eastus2"
   }
   aks = {
-    name     = "<override in main>"
+    name     = "aks"
     location = "eastus2"
   }
 }
 
 public_ips = {
   fw = {
-    name                = "fwpip"
-    resource_group_name = "rg1"
+    name                = "fw"
+    resource_group_name = "hub"
     location            = "eastus2"
     allocation_method   = "Static"
     sku                 = "Standard"
@@ -52,6 +52,19 @@ networks = {
       }
     ]
   }
+  aks = {
+    name                   = "aks"
+    resource_group_name    = "rg1"
+    address_space          = ["10.12.0.0/16"]
+    location               = "eastus2"
+    enable_ddos_protection = false
+    subnet = [
+      {
+        name             = "AKSSubnet"
+        address_prefixes = ["10.12.0.0/24"]
+      }
+    ]
+  }
 }
 
 virtual_network_peers = {
@@ -69,6 +82,24 @@ virtual_network_peers = {
     resource_group_name          = "rg1"
     virtual_network_name         = "vm"
     remote_virtual_network_id    = "hub"
+    allow_forwarded_traffic      = true
+    allow_gateway_transit        = false
+    allow_virtual_network_access = true
+  }
+  aks_to_hub = {
+    name                         = "aks-to-hub"
+    resource_group_name          = "rg1"
+    virtual_network_name         = "aks"
+    remote_virtual_network_id    = "hub"
+    allow_forwarded_traffic      = true
+    allow_gateway_transit        = false
+    allow_virtual_network_access = true
+  }
+  hub_to_aks = {
+    name                         = "hub-to-aks"
+    resource_group_name          = "rg1"
+    virtual_network_name         = "hub"
+    remote_virtual_network_id    = "aks"
     allow_forwarded_traffic      = true
     allow_gateway_transit        = false
     allow_virtual_network_access = true
@@ -355,8 +386,8 @@ firewalls = {
 }
 
 route_tables = {
-  vm_to_hub = {
-    name                          = "vm_to_hub"
+  spokes_to_hub = {
+    name                          = "spokes_to_hub"
     location                      = "eastus2"
     resource_group_name           = "rg1"
     bgp_route_propagation_enabled = false
@@ -375,5 +406,9 @@ subnet_route_table_associations = {
   vm_to_hub = {
     subnet_id      = "BackendSubnet"
     route_table_id = "vm_to_hub"
+  }
+  aks_to_hub = {
+    subnet_id      = "AKSSubnet"
+    route_table_id = "aks_to_hub"
   }
 }

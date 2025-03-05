@@ -3,11 +3,12 @@ module "rg" {
   resource_groups = var.resource_groups
 }
 
-# module "pip" {
-#   source     = "./modules/public_ip"
-#   public_ips = var.public_ips
-#   depends_on = [module.rg]
-# }
+module "pip" {
+  source     = "./modules/public_ip"
+  rg_names   = module.rg.resource_group_names
+  public_ips = var.public_ips
+  depends_on = [module.rg]
+}
 
 # module "vnet" {
 #   source                = "./modules/internal_network_tier"
