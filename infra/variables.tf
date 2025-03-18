@@ -375,7 +375,58 @@ variable "route_tables" {
 variable "subnet_route_table_associations" {
   description = "A map of subnet route table associations to create"
   type = map(object({
+    vnet_name      = string
     subnet_id      = string
     route_table_id = string
+  }))
+}
+
+# aks variables
+variable "aks" {
+  description = "The AKS cluster configuration"
+  type = map(object({
+    name                    = string
+    location                = string
+    resource_group_name     = string
+    dns_prefix              = string
+    kubernetes_version      = string
+    local_account_disabled  = bool
+    sku_tier                = string
+    private_cluster_enabled = bool
+    azure_policy_enabled    = bool
+    azure_rbac_enabled      = bool
+    vnet_name               = string
+    default_node_pool = object({
+      name                 = string
+      node_count           = number
+      vm_size              = string
+      auto_scaling_enabled = bool
+      min_count            = number
+      max_count            = number
+      os_sku               = string
+      vnet_subnet_id       = string
+    })
+    azure_active_directory_role_based_access_control = object({
+      azure_rbac_enabled     = bool
+      admin_group_object_ids = list(string)
+    })
+    network_profile = object({
+      network_plugin      = string
+      network_plugin_mode = string
+      network_policy      = string
+      pod_cidr            = string
+      service_cidr        = string
+      dns_service_ip      = string
+      outbound_type       = string
+    })
+    oms_agent = optional(object({
+      log_analytics_workspace_id = string
+    }))
+    identity = object({
+      type = string
+    })
+    tags = object({
+      Environment = string
+    })
   }))
 }

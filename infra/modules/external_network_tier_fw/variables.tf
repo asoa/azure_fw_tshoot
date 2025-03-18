@@ -130,6 +130,7 @@ variable "route_tables" {
 variable "subnet_route_table_associations" {
   description = "A map of subnet route table associations to create"
   type = map(object({
+    vnet_name      = string
     subnet_id      = string
     route_table_id = string
   }))

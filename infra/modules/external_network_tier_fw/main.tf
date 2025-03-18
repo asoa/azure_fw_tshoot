@@ -121,6 +121,6 @@ resource "azurerm_route_table" "rt" {
 
 resource "azurerm_subnet_route_table_association" "srt" {
   for_each       = var.subnet_route_table_associations
-  subnet_id      = var.subnet_ids["vm"][each.value.subnet_id]
+  subnet_id      = var.subnet_ids[each.value.vnet_name][each.value.subnet_id]
   route_table_id = azurerm_route_table.rt[each.value.route_table_id].id
 }

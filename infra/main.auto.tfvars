@@ -18,7 +18,7 @@ resource_groups = {
 public_ips = {
   fw = {
     name                = "fw"
-    resource_group_name = "hub"
+    resource_group_name = "rg-jpes-hub"
     location            = "eastus2"
     allocation_method   = "Static"
     sku                 = "Standard"
@@ -28,7 +28,7 @@ public_ips = {
 networks = {
   hub = {
     name                   = "hub"
-    resource_group_name    = "rg1"
+    resource_group_name    = "rg-jpes-hub"
     address_space          = ["10.10.0.0/16"]
     location               = "eastus2"
     enable_ddos_protection = false
@@ -41,7 +41,7 @@ networks = {
   }
   vm = {
     name                   = "vm"
-    resource_group_name    = "rg1"
+    resource_group_name    = "rg-jpes-hub"
     address_space          = ["10.11.0.0/16"]
     location               = "eastus2"
     enable_ddos_protection = false
@@ -54,7 +54,7 @@ networks = {
   }
   aks = {
     name                   = "aks"
-    resource_group_name    = "rg1"
+    resource_group_name    = "rg-jpes-hub"
     address_space          = ["10.12.0.0/16"]
     location               = "eastus2"
     enable_ddos_protection = false
@@ -70,7 +70,7 @@ networks = {
 virtual_network_peers = {
   hub_to_vm = {
     name                         = "hub-to-vm"
-    resource_group_name          = "rg1"
+    resource_group_name          = "rg-jpes-hub"
     virtual_network_name         = "hub"
     remote_virtual_network_id    = "vm"
     allow_forwarded_traffic      = true
@@ -79,7 +79,7 @@ virtual_network_peers = {
   }
   vm_to_hub = {
     name                         = "vm-to-hub"
-    resource_group_name          = "rg1"
+    resource_group_name          = "rg-jpes-hub"
     virtual_network_name         = "vm"
     remote_virtual_network_id    = "hub"
     allow_forwarded_traffic      = true
@@ -88,7 +88,7 @@ virtual_network_peers = {
   }
   aks_to_hub = {
     name                         = "aks-to-hub"
-    resource_group_name          = "rg1"
+    resource_group_name          = "rg-jpes-hub"
     virtual_network_name         = "aks"
     remote_virtual_network_id    = "hub"
     allow_forwarded_traffic      = true
@@ -97,7 +97,7 @@ virtual_network_peers = {
   }
   hub_to_aks = {
     name                         = "hub-to-aks"
-    resource_group_name          = "rg1"
+    resource_group_name          = "rg-jpes-hub"
     virtual_network_name         = "hub"
     remote_virtual_network_id    = "aks"
     allow_forwarded_traffic      = true
@@ -111,7 +111,7 @@ virtual_network_peers = {
 network_interfaces = {
   vm1 = {
     name                  = "vm1nic"
-    resource_group_name   = "rg1"
+    resource_group_name   = "rg-jpes-vm"
     location              = "eastus2"
     ip_forwarding_enabled = false
     ip_configuration = {
@@ -123,7 +123,7 @@ network_interfaces = {
   }
   vm2 = {
     name                  = "vm2nic"
-    resource_group_name   = "rg1"
+    resource_group_name   = "rg-jpes-vm"
     location              = "eastus2"
     ip_forwarding_enabled = false
     ip_configuration = {
@@ -138,7 +138,7 @@ network_interfaces = {
 virtual_machines = {
   vm1 = {
     name                  = "vm1"
-    resource_group_name   = "rg1"
+    resource_group_name   = "rg-jpes-vm"
     location              = "eastus2"
     size                  = "Standard_DS1_v2"
     admin_username        = "adminuser"
@@ -160,7 +160,7 @@ virtual_machines = {
   }
   vm2 = {
     name                  = "vm2"
-    resource_group_name   = "rg1"
+    resource_group_name   = "rg-jpes-vm"
     location              = "eastus2"
     size                  = "Standard_DS1_v2"
     admin_username        = "adminuser"
@@ -219,7 +219,7 @@ load_balancers = {
   lb = {
     name                = "lb"
     location            = "eastus2"
-    resource_group_name = "rg1"
+    resource_group_name = "rg-jpes-hub"
     sku                 = "Standard"
     sku_tier            = "Regional"
     frontend_ip_configuration = {
@@ -276,7 +276,7 @@ nic_bep_associations = {
 firewall_policies = {
   fw-policy = {
     name                = "fw-policy"
-    resource_group_name = "rg1"
+    resource_group_name = "rg-jpes-hub"
     location            = "eastus2"
   }
 }
@@ -373,7 +373,7 @@ firewalls = {
   "fw" = {
     name                = "fw"
     location            = "eastus2"
-    resource_group_name = "rg1"
+    resource_group_name = "rg-jpes-hub"
     sku_name            = "AZFW_VNet"
     sku_tier            = "Standard"
     ip_configuration = {
@@ -389,7 +389,7 @@ route_tables = {
   spokes_to_hub = {
     name                          = "spokes_to_hub"
     location                      = "eastus2"
-    resource_group_name           = "rg1"
+    resource_group_name           = "rg-jpes-hub"
     bgp_route_propagation_enabled = false
     routes = {
       default = {
@@ -404,11 +404,61 @@ route_tables = {
 
 subnet_route_table_associations = {
   vm_to_hub = {
+    vnet_name      = "vm"
     subnet_id      = "BackendSubnet"
-    route_table_id = "vm_to_hub"
+    route_table_id = "spokes_to_hub"
   }
   aks_to_hub = {
+    vnet_name      = "aks"
     subnet_id      = "AKSSubnet"
-    route_table_id = "aks_to_hub"
+    route_table_id = "spokes_to_hub"
   }
 }
+
+# aks cluster
+aks = {
+  "cluster1" = {
+    name                    = "aks-cluster"
+    location                = "eastus2"
+    resource_group_name     = "rg-jpes-aks"
+    dns_prefix              = "aks-cluster"
+    kubernetes_version      = "1.30.5"
+    local_account_disabled  = true
+    sku_tier                = "Standard"
+    private_cluster_enabled = true
+    azure_policy_enabled    = true
+    azure_rbac_enabled      = true
+    vnet_name               = "aks"
+    default_node_pool = {
+      name                 = "default"
+      node_count           = 3
+      vm_size              = "Standard_D4s_v3"
+      auto_scaling_enabled = true
+      min_count            = 1
+      max_count            = 3
+      os_sku               = "AzureLinux"
+      vnet_subnet_id       = "AKSSubnet"
+    }
+    azure_active_directory_role_based_access_control = {
+      azure_rbac_enabled     = true
+      admin_group_object_ids = ["7b7df0e0-5d8f-427a-b6c7-c842066ef297"]
+    }
+    network_profile = {
+      network_plugin      = "azure"
+      network_plugin_mode = "overlay"
+      network_policy      = "calico"
+      pod_cidr            = "192.168.0.0/16" # Required for Azure CNI Overlay
+      service_cidr        = "10.0.0.0/16"
+      dns_service_ip      = "10.0.0.10"
+      outbound_type       = "userDefinedRouting"
+    }
+    identity = {
+      type = "SystemAssigned"
+    }
+    tags = {
+      Environment = "dev"
+    }
+  }
+}
+
+
