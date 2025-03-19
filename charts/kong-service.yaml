@@ -1,0 +1,55 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kong-proxy
+  namespace: ns-gateway
+  finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+spec:
+  ports:
+    - name: https-proxy-ssl
+      protocol: TCP
+      port: 443
+      targetPort: 8443
+      nodePort: 30443
+    - name: tcp-stream22
+      protocol: TCP
+      port: 22
+      targetPort: 9000
+      nodePort: 30022
+    - name: tcp-stream5432
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 30432
+    - name: tcp-stream5433
+      protocol: TCP
+      port: 5433
+      targetPort: 5433
+      nodePort: 30433
+    - name: tcp-stream61616
+      protocol: TCP
+      port: 61616
+      targetPort: 61616
+      nodePort: 30001
+  selector:
+    app: ingress-kong
+  clusterIP: 10.96.238.96
+  clusterIPs:
+    - 10.96.238.96
+  type: LoadBalancer
+  sessionAffinity: None
+  loadBalancerIP: <ip
+  loadBalancerSourceRanges:
+    - 0.0.0.0/0
+  externalTrafficPolicy: Local
+  healthCheckNodePort: 31156
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  allocateLoadBalancerNodePorts: true
+  internalTrafficPolicy: Cluster
+status:
+  loadBalancer:
+    ingress:
+      - ip: <ip>
