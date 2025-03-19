@@ -1,14 +1,15 @@
 resource "azurerm_kubernetes_cluster" "aks" {
-  for_each                = var.aks
-  name                    = each.value.name
-  location                = each.value.location
-  resource_group_name     = each.value.resource_group_name
-  dns_prefix              = each.value.dns_prefix
-  kubernetes_version      = each.value.kubernetes_version
-  local_account_disabled  = each.value.local_account_disabled
-  sku_tier                = each.value.sku_tier
-  private_cluster_enabled = each.value.private_cluster_enabled
-  azure_policy_enabled    = each.value.azure_policy_enabled
+  for_each                         = var.aks
+  name                             = each.value.name
+  location                         = each.value.location
+  resource_group_name              = each.value.resource_group_name
+  dns_prefix                       = each.value.dns_prefix
+  kubernetes_version               = each.value.kubernetes_version
+  local_account_disabled           = each.value.local_account_disabled
+  sku_tier                         = each.value.sku_tier
+  private_cluster_enabled          = each.value.private_cluster_enabled
+  azure_policy_enabled             = each.value.azure_policy_enabled
+  http_application_routing_enabled = each.value.http_application_routing_enabled
 
   azure_active_directory_role_based_access_control {
     azure_rbac_enabled     = each.value.azure_active_directory_role_based_access_control.azure_rbac_enabled

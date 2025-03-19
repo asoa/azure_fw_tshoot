@@ -385,17 +385,17 @@ variable "subnet_route_table_associations" {
 variable "aks" {
   description = "The AKS cluster configuration"
   type = map(object({
-    name                    = string
-    location                = string
-    resource_group_name     = string
-    dns_prefix              = string
-    kubernetes_version      = string
-    local_account_disabled  = bool
-    sku_tier                = string
-    private_cluster_enabled = bool
-    azure_policy_enabled    = bool
-    azure_rbac_enabled      = bool
-    vnet_name               = string
+    name                             = string
+    location                         = string
+    resource_group_name              = string
+    dns_prefix                       = string
+    kubernetes_version               = string
+    local_account_disabled           = bool
+    sku_tier                         = string
+    private_cluster_enabled          = bool
+    azure_policy_enabled             = bool
+    http_application_routing_enabled = optional(bool)
+    vnet_name                        = string
     default_node_pool = object({
       name                 = string
       node_count           = optional(number)
@@ -419,9 +419,6 @@ variable "aks" {
       dns_service_ip      = string
       outbound_type       = string
     })
-    oms_agent = optional(object({
-      log_analytics_workspace_id = string
-    }))
     identity = object({
       type = string
     })
