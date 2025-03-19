@@ -40,7 +40,7 @@ resource "azurerm_lb_probe" "by_map" {
 
 resource "azurerm_lb_rule" "by_map" {
   for_each                       = var.lb_rules
-  loadbalancer_id                = azurerm_lb.lb[each.key].id
+  loadbalancer_id                = azurerm_lb.lb[split("-", each.key)[0]].id
   name                           = each.value.name
   protocol                       = each.value.protocol
   frontend_port                  = each.value.frontend_port
@@ -48,7 +48,7 @@ resource "azurerm_lb_rule" "by_map" {
   frontend_ip_configuration_name = each.value.frontend_ip_configuration_name
   probe_id                       = azurerm_lb_probe.by_map[split("-", each.key)[0]].id
   disable_outbound_snat          = each.value.disable_outbound_snat
-  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_pool[each.key].id]
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_pool[split("-", each.key)[0]].id]
 }
 
 resource "azurerm_network_security_group" "nsg" {

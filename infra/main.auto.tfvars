@@ -104,6 +104,24 @@ virtual_network_peers = {
     allow_gateway_transit        = false
     allow_virtual_network_access = true
   }
+  aks_to_vm = {
+    name                         = "aks-to-vm"
+    resource_group_name          = "rg-jpes-hub"
+    virtual_network_name         = "aks"
+    remote_virtual_network_id    = "vm"
+    allow_forwarded_traffic      = true
+    allow_gateway_transit        = false
+    allow_virtual_network_access = true
+  }
+  vm_to_aks = {
+    name                         = "vm-to-aks"
+    resource_group_name          = "rg-jpes-hub"
+    virtual_network_name         = "vm"
+    remote_virtual_network_id    = "aks"
+    allow_forwarded_traffic      = true
+    allow_gateway_transit        = false
+    allow_virtual_network_access = true
+  }
 }
 
 # virtual machines
@@ -241,12 +259,22 @@ lb_probes = {
 }
 
 lb_rules = {
-  lb = {
+  lb-80 = {
     loadbalancer_id                = "lb"
     name                           = "lb-rule"
     protocol                       = "Tcp"
     frontend_port                  = 80
     backend_port                   = 80
+    frontend_ip_configuration_name = "frontend"
+    probe_id                       = "lb-probe"
+    disable_outbound_snat          = true
+  }
+  lb-3389 = {
+    loadbalancer_id                = "lb"
+    name                           = "lb-rule-rdp"
+    protocol                       = "Tcp"
+    frontend_port                  = 3389
+    backend_port                   = 3389
     frontend_ip_configuration_name = "frontend"
     probe_id                       = "lb-probe"
     disable_outbound_snat          = true
@@ -325,23 +353,62 @@ firewall_policy_rule_collection_groups = {
         priority = 210
         rules = [
           {
-            name = "Allow-HTTP"
+            name = "allow-http-testing"
             protocols = {
               type = "Http"
               port = "80"
             }
             source_addresses  = ["*"]
-            destination_fqdns = ["*.microsoft.com", "*.google.com"]
+            destination_fqdns = ["*"]
           },
           {
-            name = "allow-msft-https"
+            name = "allow-https-testing"
             protocols = {
               type = "Https"
-              port = 443
+              port = "443"
             }
             source_addresses  = ["*"]
-            destination_fqdns = ["*.microsoft.com", "*.google.com"]
+            destination_fqdns = ["*"]
           }
+          # {
+          #   name = "Allow-HTTP"
+          #   protocols = {
+          #     type = "Http"
+          #     port = "80"
+          #   }
+          #   source_addresses  = ["*"]
+          #   destination_fqdns = ["*.microsoft.com", "*.google.com"]
+          # },
+          # {
+          #   name = "allow-msft-https"
+          #   protocols = {
+          #     type = "Https"
+          #     port = 443
+          #   }
+          #   source_addresses = ["*"]
+          #   destination_fqdns = ["*.microsoft.com", "*.google.com", "portal.azure.com", "login.microsoftonline.com",
+          #     "aadcdn.msftauth.net", "login.live.com", "*.privatelink.eastus2.azmk8s.io"
+          #   ]
+          # },
+          # {
+          #   name = "allow-aks-global"
+          #   protocols = {
+          #     type = "Https"
+          #     port = 443
+          #   }
+          #   source_addresses = ["*"]
+          #   destination_fqdns = [
+          #     "*.hcp.eastus2.azmk8s.io",
+          #     "mcr.microsoft.com",
+          #     "*.data.mcr.microsoft.com",
+          #     "mcr-0001.mcr-msedge.net",
+          #     "management.azure.com",
+          #     "login.microsoftonline.com",
+          #     "packages.microsoft.com",
+          #     "acs-mirror.azureedge.net",
+          #     "packages.aks.azure.com"
+          #   ]
+          # }
         ]
       }
     ]
@@ -351,17 +418,59 @@ firewall_policy_rule_collection_groups = {
     firewall_policy = "fw-policy"
     priority        = 300
     network_rule_collections = [
+      # {
+      #   name     = "vnet-rdp"
+      #   priority = 310
+      #   action   = "Allow"
+      #   rules = [
+      #     {
+      #       name                  = "allow-vnet"
+      #       protocols             = ["TCP"]
+      #       source_addresses      = ["*"]
+      #       destination_addresses = ["*"]
+      #       destination_ports     = ["3389"]
+      #     }
+      #   ]
+      # }
+      # {
+      #   name    = "aks"
+      #   priority = 320
+      #   action   = "Allow"
+      #   rules = [
+      #     {
+      #       name                  = "allow-aks-global"
+      #       protocols             = ["UDP", "TCP"]
+      #       source_addresses      = ["*"]
+      #       destination_addresses = ["*"]
+      #       destination_ports     = ["1194", "9000", "123"]
+      #     }
+      #   ]
+      # }
       {
-        name     = "vnet-rdp"
-        priority = 310
+        name     = "aks-outbound"
+        priority = 320
         action   = "Allow"
         rules = [
           {
-            name                  = "allow-vnet"
-            protocols             = ["TCP"]
-            source_addresses      = ["*"]
+            name                  = "allow-aks-outbound"
+            protocols             = ["Any"]
+            source_addresses      = ["10.12.0.0/24"]
             destination_addresses = ["*"]
-            destination_ports     = ["3389"]
+            destination_ports     = ["*"]
+          }
+        ]
+      },
+      {
+        name     = "allow-vm-subnet"
+        priority = 330
+        action   = "Allow"
+        rules = [
+          {
+            name                  = "allow-vm-subnet-to-any"
+            protocols             = ["Any"]
+            source_addresses      = ["10.11.1.0/24"]
+            destination_addresses = ["*"]
+            destination_ports     = ["*"]
           }
         ]
       }
@@ -430,14 +539,14 @@ aks = {
     azure_rbac_enabled      = true
     vnet_name               = "aks"
     default_node_pool = {
-      name                 = "default"
-      node_count           = 3
-      vm_size              = "Standard_D4s_v3"
-      auto_scaling_enabled = true
-      min_count            = 1
-      max_count            = 3
-      os_sku               = "AzureLinux"
-      vnet_subnet_id       = "AKSSubnet"
+      name       = "default"
+      node_count = 3
+      vm_size    = "Standard_D4s_v3"
+      # auto_scaling_enabled = true
+      # min_count            = 1
+      # max_count            = 3
+      os_sku         = "AzureLinux"
+      vnet_subnet_id = "AKSSubnet"
     }
     azure_active_directory_role_based_access_control = {
       azure_rbac_enabled     = true

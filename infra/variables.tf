@@ -398,11 +398,11 @@ variable "aks" {
     vnet_name               = string
     default_node_pool = object({
       name                 = string
-      node_count           = number
+      node_count           = optional(number)
       vm_size              = string
-      auto_scaling_enabled = bool
-      min_count            = number
-      max_count            = number
+      auto_scaling_enabled = optional(bool)
+      min_count            = optional(number)
+      max_count            = optional(number)
       os_sku               = string
       vnet_subnet_id       = string
     })

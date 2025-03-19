@@ -1,5 +1,5 @@
 ## Project Purpose
-Replicate hub and spoke architecture with azure firewall DNAT ingress to internal load balancer and virtual machine web servers; egress from VMs to azure firewall using user defined routes and forced tunneling.
+Replicate hub and spoke architecture with azure firewall DNAT ingress to internal load balancer -> virtual machine web servers and Azure Kubernetes Cluster; egress from VMs and AKS to azure firewall using user defined routes and forced tunneling.
 
 ## Getting Started
 1. Clone the repository
@@ -21,3 +21,5 @@ Replicate hub and spoke architecture with azure firewall DNAT ingress to interna
 3. Attempt to browse to *.google.com and *.microsoft.com (should work). All other traffic is blocked by firewall application rules.
 ![alt text](./docs/app_allow.png)
 ![alt text](./docs/app_block.png)
+
+
