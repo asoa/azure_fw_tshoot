@@ -224,32 +224,3 @@ spec:
     targetPort: 8080
   selector:
     app: store-front
----
-apiVersion: approuting.kubernetes.azure.com/v1alpha1
-kind: NginxIngressController
-metadata:
-  name: nginx-internal
-spec:
-  ingressClassName: nginx-internal
-  controllerNamePrefix: nginx-internal
-  loadBalancerAnnotations:
-    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: store-front
-  namespace: aks-store
-spec:
-  ingressClassName: nginx-internal
-  rules:
-  - host: store-front.private.contoso.com
-    http:
-      paths:
-      - backend:
-          service:
-            name: store-front
-            port:
-              number: 80
-        path: /
-        pathType: Prefix
