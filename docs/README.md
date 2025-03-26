@@ -1,0 +1,19 @@
+## Troubleshooting
+Error
+```
+Error: Warning  SyncLoadBalancerFailed  7m51s (x3 over 10m)  service-controller  Error syncing load balancer: failed to ensure load balancer: Retriable: false, RetryAfter: 0s, HTTPStatusCode: 0, RawError: [Retriable: false, RetryAfter: 0s, HTTPStatusCode: 403, RawError: {"error":{"code":"LinkedAuthorizationFailed","message":"The client '935a8b64-32a6-4701-88ce-489a49b9e52d' with object id '935a8b64-32a6-4701-88ce-489a49b9e52d' has permission to perform action 'Microsoft.Compute/virtualMachineScaleSets/virtualMachines/write' on scope '/subscriptions/d48e2004-b787-4aed-800d-47e74f92afbb/resourceGroups/mc_rg-jpes-aks_aks-cluster_eastus2/providers/Microsoft.Compute/virtualMachineScaleSets/aks-default-54800406-vmss/virtualMachines/0'; however, it does not have permission to perform action(s) 'Microsoft.Network/virtualNetworks/subnets/join/action' on the linked scope(s) '/subscriptions/d48e2004-b787-4aed-800d-47e74f92afbb/resourceGroups/rg-jpes-hub/providers/Microsoft.Network/virtualNetworks/aks/subnets/AKSSubnet' (respectively) or the linked scope(s) are invalid."}}, Retriable: false, RetryAfter: 0s, HTTPStatusCode: 403, RawError: {"error":{"code":"LinkedAuthorizationFailed","message":"The client '935a8b64-32a6-4701-88ce-489a49b9e52d' with object id '935a8b64-32a6-4701-88ce-489a49b9e52d' has permission to perform action 'Microsoft.Compute/virtualMachineScaleSets/virtualMachines/write' on scope '/subscriptions/d48e2004-b787-4aed-800d-47e74f92afbb/resourceGroups/mc_rg-jpes-aks_aks-cluster_eastus2/providers/Microsoft.Compute/virtualMachineScaleSets/aks-default-54800406-vmss/virtualMachines/1'; however, it does not have permission to perform action(s) 'Microsoft.Network/virtualNetworks/subnets/join/action' on the linked scope(s) '/subscriptions/d48e2004-b787-4aed-800d-47e74f92afbb/resourceGroups/rg-jpes-hub/providers/Microsoft.Network/virtualNetworks/aks/subnets/AKSSubnet' (respectively) or the linked scope(s) are invalid."}}, Retriable: false, RetryAfter: 0s, HTTPStatusCode: 403, RawError: {"error":{"code":"LinkedAuthorizationFailed","message":"The client '935a8b64-32a6-4701-88ce-489a49b9e52d' with object id '935a8b64-32a6-4701-88ce-489a49b9e52d' has permission to perform action 'Microsoft.Compute/virtualMachineScaleSets/virtualMachines/write' on scope '/subscriptions/d48e2004-b787-4aed-800d-47e74f92afbb/resourceGroups/mc_rg-jpes-aks_aks-cluster_eastus2/providers/Microsoft.Compute/virtualMachineScaleSets/aks-default-54800406-vmss/virtualMachines/2'; however, it does not have permission to perform action(s) 'Microsoft.Network/virtualNetworks/subnets/join/action' on the linked scope(s) '/subscriptions/d48e2004-b787-4aed-800d-47e74f92afbb/resourceGroups/rg-jpes-hub/providers/Microsoft.Network/virtualNetworks/aks/subnets/AKSSubnet' (respectively) or the linked scope(s) are invalid."}}]
+```
+Solution
+```
+add Network Contributor role to the service principal
+```
+
+Error
+```
+Error syncing load balancer: failed to ensure load balancer: Retriable: false, RetryAfter: 0s, HTTPStatusCode: 403, RawError: {"error":{"code":"AuthorizationFailed","message":"The client '935a8b64-32a6-4701-88ce-489a49b9e52d' with object id '935a8b64-32a6-4701-88ce-489a49b9e52d' does not have authorization to perform action 'Microsoft.Network/virtualNetworks/subnets/read' over scope '/subscriptions/d48e2004-b787-4aed-800d-47e74f92afbb/resourceGroups/rg-jpes-hub/providers/Microsoft.Network/virtualNetworks/aks/subnets/AzureFirewallSubnet' or the scope is invalid. If access was recently granted, please refresh your credentials."}}
+```
+Solution
+```
+provide Reader role to the service principal, scoped at resource group level
+provide Network Contributor role to the aks-cluster, scoped at the subnet
+```
